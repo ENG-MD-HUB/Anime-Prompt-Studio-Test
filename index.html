@@ -48,6 +48,30 @@ body.auth-pending > *:not(#authGuardScreen) { display: none !important; }
 }
 body.auth-pending #authGuardScreen { display: flex !important; }
 body:not(.auth-pending) #authGuardScreen { display: none !important; }
+
+/* ════════════════════════════════
+   COMPACT HEADER — icon-only
+   ════════════════════════════════ */
+.hdr { padding: 0 .75rem !important; height: 44px !important; min-height: 44px !important; }
+.logo-ico { width: 26px !important; height: 26px !important; }
+.logo-txt { font-size: .72rem !important; }
+.hdr-mid { gap: 4px !important; }
+
+/* hide text labels inside hdr-mid buttons */
+.btn-h > span:not(.chars-badge) { display: none !important; }
+.btn-h { padding: 0 .5rem !important; gap: 0 !important; min-width: 32px !important; height: 32px !important; }
+.chars-badge { display: inline-flex !important; }
+#installBtn { padding: 0 .5rem !important; }
+
+/* tighten right-side controls */
+.btn-ico { width: 32px !important; height: 32px !important; }
+#langBtn  { font-size: .7rem !important; padding: 0 .45rem !important; height: 32px !important; }
+.dvd { height: 16px !important; }
+
+/* login button — icon only */
+.btn-login > span { display: none !important; }
+.btn-login { padding: 0 .5rem !important; gap: 0 !important; min-width: 32px !important; height: 32px !important; }
+.auth-avatar { width: 26px !important; height: 26px !important; }
 </style>
 </head>
 <body class="auth-pending">
@@ -78,7 +102,7 @@ body:not(.auth-pending) #authGuardScreen { display: none !important; }
     <button class="btn-h btn-install" id="installBtn" style="display:none" title="Install App">
       <i class="fas fa-download"></i> <span>Install App</span>
     </button>
-    <button class="btn-h" id="randomBtn"><i class="fas fa-shuffle"></i> <span data-i18n="random">Random</span></button>
+    <button class="btn-h" id="randomBtn" title="Random"><i class="fas fa-shuffle"></i> <span data-i18n="random">Random</span></button>
     <button class="btn-h btn-chars" id="charsPopBtn" title="Characters">
       <i class="fas fa-users"></i>
       <span>Characters</span>
@@ -1048,6 +1072,19 @@ body:not(.auth-pending) #authGuardScreen { display: none !important; }
 <div id="hcpPopup" style="display:none;position:fixed;z-index:99999;"></div>
 
 <script>
+(function(){
+  /* ── Mesh Gradient ── */
+  var c=document.getElementById('meshBg'),ctx=c.getContext('2d');
+  var P=[{x:.08,y:.15,h:245,r:.55,sx:.28,sy:.22,px:0,py:0},{x:.55,y:.08,h:270,r:.50,sx:.20,sy:.35,px:1.1,py:.7},{x:.92,y:.22,h:300,r:.52,sx:.33,sy:.18,px:2.3,py:1.4},{x:.18,y:.82,h:220,r:.50,sx:.25,sy:.28,px:.5,py:2.1},{x:.72,y:.75,h:255,r:.55,sx:.30,sy:.24,px:3.1,py:.3},{x:.50,y:.50,h:285,r:.48,sx:.18,sy:.32,px:1.7,py:1.9},{x:.85,y:.55,h:235,r:.45,sx:.22,sy:.20,px:4.0,py:2.8},{x:.25,y:.45,h:310,r:.45,sx:.26,sy:.30,px:2.6,py:.9}];
+  var t=0,W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    P.forEach(function(p){var ox=Math.sin(t*p.sx+p.px)*.13,oy=Math.cos(t*p.sy+p.py)*.10,px=(p.x+ox)*W,py=(p.y+oy)*H,r=p.r*Math.max(W,H),hue=p.h+Math.sin(t*.18+p.px)*18,g=ctx.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,'hsla('+hue+',72%,52%,.26)');g.addColorStop(.45,'hsla('+hue+',65%,45%,.10)');g.addColorStop(1,'hsla('+hue+',60%,38%,0)');ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();});
+    t+=.008;requestAnimationFrame(draw);
+  })();
+})();
 /* ── Characters Popout ── */
 (function(){
   var btn      = document.getElementById('charsPopBtn');
@@ -1097,10 +1134,40 @@ body:not(.auth-pending) #authGuardScreen { display: none !important; }
 })();
 </script>
 
-<!-- \u2500\u2500 Shared: PWA (SW registration + install button) \u2500\u2500 -->
-<script src="js/pwa.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', {scope: '/anime-prompt-studio/'})
+      .catch(e => console.warn('SW:', e));
+  });
+}
+</script>
 
-<!-- \u2500\u2500 Shared: Animated background (mesh gradient) \u2500\u2500 -->
-<script src="js/bg-effects.js"></script>
+<script>
+/* ── PWA Install Prompt ── */
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = '';
+});
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+  _installPrompt = null;
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('installBtn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    if (!_installPrompt) return;
+    _installPrompt.prompt();
+    const { outcome } = await _installPrompt.userChoice;
+    if (outcome === 'accepted') btn.style.display = 'none';
+    _installPrompt = null;
+  });
+});
+</script>
 </body>
 </html>
