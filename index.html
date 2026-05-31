@@ -30,20 +30,60 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236366f1'/><text x='16' y='23' font-size='18' text-anchor='middle' fill='white'>✦</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Cairo:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#07090f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="APS">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="style.css">
+<style>
+/* ── auth guard: hide everything until confirmed ── */
+body.auth-pending > *:not(#authGuardScreen) { display: none !important; }
+#authGuardScreen {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #07040f;
+  display: flex; align-items: center; justify-content: center;
+}
+body.auth-pending #authGuardScreen { display: flex !important; }
+body:not(.auth-pending) #authGuardScreen { display: none !important; }
+</style>
 </head>
-<body>
+<body class="auth-pending">
+
+<div id="authGuardScreen">
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:ags-spin 1.1s linear infinite">
+    <circle cx="20" cy="20" r="17" stroke="rgba(99,102,241,.15)" stroke-width="3"/>
+    <path d="M20 3 A17 17 0 0 1 37 20" stroke="url(#ags-grad)" stroke-width="3" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="ags-grad" x1="20" y1="3" x2="37" y2="20" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#6366f1"/>
+        <stop offset="100%" stop-color="#f472b6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <style>@keyframes ags-spin{to{transform:rotate(360deg)}}</style>
+</div>
+
 <canvas id="meshBg" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55;"></canvas>
 
 <!-- ═══ HEADER ═══ -->
 <div class="hdr">
   <div class="logo">
-    <div class="logo-ico">✦</div>
+    <img class="logo-ico" src="data:image/png;base64,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" alt="APS">
     <span class="logo-txt">Anime Prompt Studio©</span>
   </div>
   <div class="hdr-mid">
+    <button class="btn-h btn-install" id="installBtn" style="display:none" title="Install App">
+      <i class="fas fa-download"></i> <span>Install App</span>
+    </button>
     <button class="btn-h" id="randomBtn"><i class="fas fa-shuffle"></i> <span data-i18n="random">Random</span></button>
-    
+    <button class="btn-h btn-chars" id="charsPopBtn" title="Characters">
+      <i class="fas fa-users"></i>
+      <span>Characters</span>
+      <span class="chars-badge" id="charsBadge" style="display:none">0</span>
+    </button>
   </div>
   <div class="hdr-right">
     <div class="dvd"></div>
@@ -141,14 +181,6 @@
       <button class="tab" data-c="negative"><i class="fas fa-ban"></i> <span data-i18n="tab_avoid">Avoid</span></button>
     </div>
 
-    <!-- ══ CHARACTER CARDS (always visible across char tabs) ══ -->
-    <div class="char-cards-sticky">
-      <div class="char-cards-row" id="charCardsRow"></div>
-      <div class="char-warn" id="charWarn">
-        <i class="fas fa-triangle-exclamation"></i>
-        <span>Using 2+ characters may confuse the model — results can be inconsistent.</span>
-      </div>
-    </div>
   </div><!-- /char-sticky-zone -->
 
   <!-- ── STYLE (NEW FIRST TAB) ── -->
@@ -409,6 +441,23 @@
   </div>
 
 </div><!-- /lp -->
+
+<!-- ═══ CHARACTERS POPOUT ═══ -->
+<div class="chars-popout" id="charsPopout">
+  <div class="chars-pop-hd">
+    <span class="chars-pop-ttl"><i class="fas fa-users"></i> Characters</span>
+    <button class="chars-pop-clr" id="charCardsClrBtn"><span>Clear All</span></button>
+    <button class="chars-pop-close" id="charsPopClose"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="chars-pop-body">
+    <div class="char-cards-row" id="charCardsRow"></div>
+    <div class="char-warn" id="charWarn">
+      <i class="fas fa-triangle-exclamation"></i>
+      <span>Using 2+ characters may produce inconsistent results.</span>
+    </div>
+  </div>
+</div>
+<div class="chars-pop-backdrop" id="charsPopBackdrop"></div>
 
 <!-- ═══ RESIZER ═══ -->
 <div class="layout-resizer" id="layoutResizer">
@@ -870,77 +919,19 @@
   </div>
 </div>
 
+
+<!-- ── Shared: Firebase (init + Firestore + auth guard) ── -->
 <script type="module">
-  import { initializeApp }                          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-  import { getAnalytics }                           from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-                                                    from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, serverTimestamp }
-                                                    from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey:            "AIzaSyAU0hfv8sM6PlFqeJgHh7upYSkMEm2ilpc",
-    authDomain:        "anime-prompt-studio-main.firebaseapp.com",
-    projectId:         "anime-prompt-studio-main",
-    storageBucket:     "anime-prompt-studio-main.firebasestorage.app",
-    messagingSenderId: "617164431718",
-    appId:             "1:617164431718:web:3dcb036700a52ec83ba8a7",
-    measurementId:     "G-X01T4B2E1B"
-  };
-
-  const app       = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const auth      = getAuth(app);
-  const db        = getFirestore(app);
-  const provider  = new GoogleAuthProvider();
-
-  // ── Expose to window so app.js can call them ──
-  window._fbAuth = {
-    signIn:  () => signInWithPopup(auth, provider),
-    signOut: () => signOut(auth),
-    onAuth:  (cb) => onAuthStateChanged(auth, cb),
-  };
-
-  window._fbFavs = {
-    // Save single favourite to Firestore
-    save: async (uid, fav) => {
-      const ref = collection(db, 'users', uid, 'favourites');
-      await addDoc(ref, { ...fav, createdAt: serverTimestamp() });
-    },
-    // Load all favourites ordered by newest first
-    load: async (uid) => {
-      const ref  = collection(db, 'users', uid, 'favourites');
-      const q    = query(ref, orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
-    },
-    // Delete single favourite by Firestore doc id
-    del: async (uid, docId) => {
-      await deleteDoc(doc(db, 'users', uid, 'favourites', docId));
-    },
-    // Delete all favourites
-    clear: async (uid) => {
-      const ref  = collection(db, 'users', uid, 'favourites');
-      const snap = await getDocs(ref);
-      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
-    },
-  };
-
-  window._fbCharLib = {
-    save: async (uid, entry) => {
-      const ref = doc(db, 'users', uid, 'charLib', String(entry.id));
-      await setDoc(ref, { ...entry, updatedAt: serverTimestamp() });
-    },
-    load: async (uid) => {
-      const ref  = collection(db, 'users', uid, 'charLib');
-      const q    = query(ref, orderBy('updatedAt', 'desc'));
-      const snap = await getDocs(q);
-      return snap.docs.map(d => ({ ...d.data() }));
-    },
-    del: async (uid, entryId) => {
-      await deleteDoc(doc(db, 'users', uid, 'charLib', String(entryId)));
-    },
-  };
+  import { auth, onAuthStateChanged } from './js/firebase.js';
+  /* Auth guard: hide page until auth state resolved */
+  onAuthStateChanged(auth, function(user) {
+    window._currentUser = user || null;
+    if (user || sessionStorage.getItem('aps_guest') === '1') {
+      document.body.classList.remove('auth-pending');
+    } else {
+      window.location.href = 'auth.html';
+    }
+  });
 </script>
 <script src="app.js"></script>
 <script src="char-slots.js"></script>
@@ -987,19 +978,59 @@
 <div id="hcpPopup" style="display:none;position:fixed;z-index:99999;"></div>
 
 <script>
+/* ── Characters Popout ── */
 (function(){
-  /* ── Mesh Gradient ── */
-  var c=document.getElementById('meshBg'),ctx=c.getContext('2d');
-  var P=[{x:.08,y:.15,h:245,r:.55,sx:.28,sy:.22,px:0,py:0},{x:.55,y:.08,h:270,r:.50,sx:.20,sy:.35,px:1.1,py:.7},{x:.92,y:.22,h:300,r:.52,sx:.33,sy:.18,px:2.3,py:1.4},{x:.18,y:.82,h:220,r:.50,sx:.25,sy:.28,px:.5,py:2.1},{x:.72,y:.75,h:255,r:.55,sx:.30,sy:.24,px:3.1,py:.3},{x:.50,y:.50,h:285,r:.48,sx:.18,sy:.32,px:1.7,py:1.9},{x:.85,y:.55,h:235,r:.45,sx:.22,sy:.20,px:4.0,py:2.8},{x:.25,y:.45,h:310,r:.45,sx:.26,sy:.30,px:2.6,py:.9}];
-  var t=0,W,H;
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
-  resize();window.addEventListener('resize',resize);
-  (function draw(){
-    ctx.clearRect(0,0,W,H);
-    P.forEach(function(p){var ox=Math.sin(t*p.sx+p.px)*.13,oy=Math.cos(t*p.sy+p.py)*.10,px=(p.x+ox)*W,py=(p.y+oy)*H,r=p.r*Math.max(W,H),hue=p.h+Math.sin(t*.18+p.px)*18,g=ctx.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,'hsla('+hue+',72%,52%,.26)');g.addColorStop(.45,'hsla('+hue+',65%,45%,.10)');g.addColorStop(1,'hsla('+hue+',60%,38%,0)');ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();});
-    t+=.008;requestAnimationFrame(draw);
-  })();
+  var btn      = document.getElementById('charsPopBtn');
+  var popout   = document.getElementById('charsPopout');
+  var backdrop = document.getElementById('charsPopBackdrop');
+  var closeBtn = document.getElementById('charsPopClose');
+  var badge    = document.getElementById('charsBadge');
+
+  function open(){
+    popout.classList.add('open');
+    backdrop.classList.add('open');
+    btn.classList.add('on');
+    positionPopout();
+  }
+  function close(){
+    popout.classList.remove('open');
+    backdrop.classList.remove('open');
+    btn.classList.remove('on');
+  }
+  function toggle(){ popout.classList.contains('open') ? close() : open(); }
+
+  function positionPopout(){
+    var br = btn.getBoundingClientRect();
+    popout.style.top  = (br.bottom + 8) + 'px';
+    var left = br.left + br.width/2 - 180;
+    if(left < 8) left = 8;
+    if(left + 360 > window.innerWidth - 8) left = window.innerWidth - 368;
+    popout.style.left = left + 'px';
+  }
+
+  btn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  window.addEventListener('resize', function(){ if(popout.classList.contains('open')) positionPopout(); });
+
+  /* update badge whenever chars change */
+  function updateBadge(){
+    if(typeof S === 'undefined') return;
+    var n = (S.characters || []).filter(Boolean).length;
+    badge.textContent = n;
+    badge.style.display = n > 0 ? '' : 'none';
+    btn.classList.toggle('has-chars', n > 0);
+  }
+  /* poll lightly — chars change via rebuild */
+  setInterval(updateBadge, 800);
+  document.addEventListener('DOMContentLoaded', updateBadge);
 })();
 </script>
+
+<!-- ── Shared: PWA (SW registration + install button) ── -->
+<script src="js/pwa.js"></script>
+
+<!-- ── Shared: Animated background (mesh gradient) ── -->
+<script src="js/bg-effects.js"></script>
 </body>
 </html>
