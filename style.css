@@ -1917,7 +1917,7 @@ body.light .conflict-notif-hint{ color:rgba(120,53,15,.4); }
   border-radius:var(--rs);
   background:linear-gradient(135deg,var(--p),var(--ac));
   border:none;color:#fff;
-  cursor:pointer;white-space:nowrap;
+  cursor:pointer;
   box-shadow:0 3px 12px var(--glow);
   transition:all .2s;
 }

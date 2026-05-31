@@ -8,14 +8,18 @@ if (workbox) {
   const { precacheAndRoute } = workbox.precaching;
   const { ExpirationPlugin } = workbox.expiration;
 
+  // ── Auto-detect base path from SW location ──
+  // Works regardless of repo name or deployment path
+  const base = self.location.pathname.replace('/sw.js', '');
+
   precacheAndRoute([
-    { url: '/Anime-Prompt-Studio-Test/index.html',    revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/app.js',        revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/char-slots.js', revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/style.css',     revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/manifest.json', revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/icon-192.png',  revision: 'v5' },
-    { url: '/Anime-Prompt-Studio-Test/icon-512.png',  revision: 'v5' },
+    { url: base + '/index.html',    revision: 'v5' },
+    { url: base + '/app.js',        revision: 'v5' },
+    { url: base + '/char-slots.js', revision: 'v5' },
+    { url: base + '/style.css',     revision: 'v5' },
+    { url: base + '/manifest.json', revision: 'v5' },
+    { url: base + '/icon-192.png',  revision: 'v5' },
+    { url: base + '/icon-512.png',  revision: 'v5' },
   ]);
 
   registerRoute(

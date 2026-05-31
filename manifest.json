@@ -2,17 +2,17 @@
   "name": "Anime Prompt Studio",
   "short_name": "APS",
   "description": "AI Image Prompt Builder for Anime",
-  "start_url": "/Anime-Prompt-Studio-Test/index.html",
-  "scope": "/Anime-Prompt-Studio-Test/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#07040f",
   "theme_color": "#07090f",
   "icons": [
-    { "src": "/Anime-Prompt-Studio-Test/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/Anime-Prompt-Studio-Test/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/Anime-Prompt-Studio-Test/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/Anime-Prompt-Studio-Test/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "lang": "en",
   "categories": ["productivity", "utilities", "entertainment"]
